@@ -1,0 +1,117 @@
+---
+title: "Exploratory analysis week 1"
+author: "Gabriel Hendergate"
+date: "06/05/2020"
+output:
+    html_document:
+    df_print: paged
+---
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Synopsis
+This analysis of NOAA Storm Databse information seeks to determine the types of 
+weather events which cause the most damage to citizens' health and the economy 
+in the US. Based on the findings proposals were made for how to effectively 
+direct mitigation strategies, and further research was suggested in order to aid
+in the development of such strategies.
+
+# Data Processing
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(data.table) # used for efficient file memory requirement estimate
+```
+
+```{r downloadData, cache=TRUE, include=FALSE}
+url = "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+download.file(url,"./Electric Power Consumption.zip")
+unzip("./Electric Power Consumption.zip")
+```
+
+```{r loadData, cache=TRUE}
+# Check memory availability with platform dependency
+if (.Platform$OS.type == "windows") { 
+    ram <- memory.limit() / 2 # limit to half ram to prevent freezing windows
+} else { 
+    stop('Platform is not windows')
+}
+fName = "household_power_consumption.txt"
+approxMb <- ncol(fread(fName, 
+                          nrows = 1, 
+                          header = FALSE)) *  
+                nrow(fread(fName, 
+                            select = 1L)) *
+                8 / (1024 ^ 2)
+
+if ( (ram / approxMb) < 1 ) { stop('Likely to exceed system RAM limit') }
+    
+# Read only the required lines from the txt file and then stop looking
+# the sequential date structure allows the below method to work
+hpc <- file(fName, "r")
+hpcLine <- c()
+hpcLines <- c()
+skipRows <- 0 # start at zero to account for header row
+while (TRUE) {
+    hpcLine = readLines(hpc, 1)
+    if (length(hpcLine) == 0) 
+        break
+    else if (grepl("Date;", hpcLine) || grepl("[12]/2/2007;", hpcLine))
+    { # only read row if it's on 1/2/2007 or 2/2/2007
+        hpcLines <- c(hpcLines, hpcLine)
+        skipRows <- skipRows - 1 # halt increment when valid data found
+    }
+    else if (grepl("3/2/2007;", hpcLine))
+        break # stop reading data on this date
+    skipRows <- skipRows + 1 # increment the number of rows to skip for df
+}
+close(hpc)
+
+# Store the relevant rows in a data.frame
+df <- read.delim(fName, sep = ";", 
+                 stringsAsFactors = FALSE,
+                 col.names = unlist(strsplit(hpcLines[1], ";")),
+                 skip = skipRows, 
+                 nrows = length(hpcLines))
+# join Date and Time columns to get full datetime information in one column
+df$Time <- as.POSIXct(paste(df$Date, df$Time), format = "%d/%m/%y%y %H:%M:%S")
+```
+
+```{r plotData, cache=TRUE}
+
+png("plot1.png")
+hist(df$Global_active_power)
+dev.off()
+
+png("plot2.png")
+plot(df$Time, df$Global_active_power, type = "l")
+dev.off()
+
+png("plot3.png")
+plot(df$Time, df$Sub_metering_1, type = "l")
+lines(df$Time, df$Sub_metering_2, type = "l", col = "red")
+lines(df$Time, df$Sub_metering_3, type = "l", col = "blue")
+legend("topright",
+       legend = names(df)[(length(names(df)) - 2):length(names(df))],
+       text.col = c("black", "red", "blue")
+       )
+dev.off()
+
+png("plot4.png")
+par(pty = "m",
+    mfrow = c(2, 2)) # set up grid, then redraw plot
+hist(df$Global_active_power)
+plot(df$Time, df$Global_active_power, type = "l")
+plot(df$Time, df$Sub_metering_1, type = "l")
+lines(df$Time, df$Sub_metering_2, type = "l", col = "red")
+lines(df$Time, df$Sub_metering_3, type = "l", col = "blue")
+legend("topright",
+       legend = names(df)[(length(names(df)) - 2):length(names(df))],
+       text.col = c("black", "red", "blue")
+       )
+plot(df$Time, df$Global_reactive_power)
+dev.off()
+```

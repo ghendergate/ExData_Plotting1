@@ -80,17 +80,37 @@ df$Time <- as.POSIXct(paste(df$Date, df$Time), format = "%d/%m/%y%y %H:%M:%S")
 ```{r plotData, cache=TRUE}
 
 png("plot1.png")
-hist(df$Global_active_power)
+hist(df$Global_active_power,
+     xlab = "Global Active Power (kW)",
+     ylab = "Frequency",
+     main = "Global Active Power",
+     col = "red")
 dev.off()
 
 png("plot2.png")
-plot(df$Time, df$Global_active_power, type = "l")
+plot(df$Time, 
+     df$Global_active_power, 
+     type = "l",
+     xlab = "Date",
+     ylab = "Global Active Power (kW)",
+     main = "Global Active Power vs Date")
 dev.off()
 
 png("plot3.png")
-plot(df$Time, df$Sub_metering_1, type = "l")
-lines(df$Time, df$Sub_metering_2, type = "l", col = "red")
-lines(df$Time, df$Sub_metering_3, type = "l", col = "blue")
+plot(df$Time, 
+     df$Sub_metering_1, 
+     type = "l",
+     xlab = "Date",
+     ylab = "Energy sub metering",
+     main = "Energy sub metering vs Date")
+lines(df$Time, 
+      df$Sub_metering_2, 
+      type = "l", 
+      col = "red")
+lines(df$Time, 
+      df$Sub_metering_3, 
+      type = "l",
+      col = "blue")
 legend("topright",
        legend = names(df)[(length(names(df)) - 2):length(names(df))],
        text.col = c("black", "red", "blue")
@@ -100,15 +120,40 @@ dev.off()
 png("plot4.png")
 par(pty = "m",
     mfrow = c(2, 2)) # set up grid, then redraw plot
-hist(df$Global_active_power)
-plot(df$Time, df$Global_active_power, type = "l")
-plot(df$Time, df$Sub_metering_1, type = "l")
-lines(df$Time, df$Sub_metering_2, type = "l", col = "red")
-lines(df$Time, df$Sub_metering_3, type = "l", col = "blue")
+
+hist(df$Global_active_power,
+     xlab = "Global Active Power (kW)",
+     ylab = "Frequency",
+     main = "Global Active Power",
+     col = "red")
+plot(df$Time, 
+     df$Global_active_power, 
+     type = "l",
+     xlab = "Date",
+     ylab = "Global Active Power (kW)",
+     main = "Global Active Power vs Date")
+plot(df$Time, 
+     df$Sub_metering_1, 
+     type = "l",
+     xlab = "Date",
+     ylab = "Energy sub metering",
+     main = "Energy sub metering vs Date")
+lines(df$Time, 
+      df$Sub_metering_2, 
+      type = "l", 
+      col = "red")
+lines(df$Time, 
+      df$Sub_metering_3, 
+      type = "l",
+      col = "blue")
 legend("topright",
        legend = names(df)[(length(names(df)) - 2):length(names(df))],
        text.col = c("black", "red", "blue")
-       )
-plot(df$Time, df$Global_reactive_power)
+        )
+plot(df$Time, 
+     df$Global_reactive_power,
+     xlab = "Date",
+     ylab = "Global Reactive Power (kW)",
+     main = "Global Reactive Power vs Date")
 dev.off()
 ```

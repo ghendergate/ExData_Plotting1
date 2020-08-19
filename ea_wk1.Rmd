@@ -1,7 +1,7 @@
 ---
 title: "Exploratory analysis week 1"
 author: "Gabriel Hendergate"
-date: "06/05/2020"
+date: "19/08/2020"
 output:
     html_document:
     df_print: paged
@@ -12,11 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Synopsis
-This analysis of NOAA Storm Databse information seeks to determine the types of 
-weather events which cause the most damage to citizens' health and the economy 
-in the US. Based on the findings proposals were made for how to effectively 
-direct mitigation strategies, and further research was suggested in order to aid
-in the development of such strategies.
+This is an exploration of the household power consumption over a 2-day period
+in 2007.
 
 # Data Processing
 ```{r library, include=FALSE}
